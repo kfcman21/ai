@@ -1,381 +1,400 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>교육활동 AI Agent Builder</title>
-<meta name="description" content="2022 개정 교육과정 성취기준에 맞춰 교육활동과 학생용 AI 에이전트를 함께 설계해 주는 도우미입니다.">
+<meta name="description" content="2022 개정 교육과정 성취기준에 맞춰 교육활동을 설계하고, 수업에서 쓸 학생용 AI 에이전트를 완성합니다.">
 <meta name="color-scheme" content="light dark">
 
 <style>
-  /* ── 라이트 팔레트 (기본) ────────────────────────────── */
+  /* ── 라이트 팔레트 (기본) ────────────────────────── */
   :root {
-    --bg-0:      #eef1f7;
-    --bg-1:      #f7f9fc;
-    --surface:   #ffffff;
-    --surface-2: #f3f5fa;
+    --bg-0:#eef1f7; --bg-1:#f7f9fc;
+    --surface:#ffffff; --surface-2:#f3f5fa;
+    --ink-1:#141822; --ink-2:#454e5e; --ink-3:#78828f;
+    --line-1:#e2e7f0; --line-2:#eef1f7;
+    --accent:#3556c8; --accent-soft:#eaeffc; --accent-ink:#2a44a0;
+    --ok:#1f7a55; --ok-soft:#e6f4ee;
 
-    --ink-1:  #141822;
-    --ink-2:  #454e5e;
-    --ink-3:  #78828f;
+    --ring:0 0 0 1px var(--line-1);
+    --lift-sm:0 1px 2px rgba(16,24,40,.05);
+    --lift:0 2px 4px rgba(16,24,40,.04),
+           0 12px 32px -8px rgba(16,24,40,.10),
+           0 32px 64px -24px rgba(16,24,40,.10);
 
-    --line-1: #e2e7f0;
-    --line-2: #eef1f7;
-
-    --accent:      #3556c8;
-    --accent-soft: #eaeffc;
-    --accent-ink:  #2a44a0;
-
-    --ring:    0 0 0 1px var(--line-1);
-    --lift-sm: 0 1px 2px rgba(16,24,40,.05);
-    --lift:    0 2px 4px rgba(16,24,40,.04),
-               0 12px 32px -8px rgba(16,24,40,.10),
-               0 32px 64px -24px rgba(16,24,40,.10);
-
-    --r-lg: 18px;
-    --r-md: 12px;
-    --r-sm: 8px;
-
-    --pad: 22px;
+    --r-lg:18px; --r-md:12px; --r-sm:9px;
+    --pad:22px;
   }
 
-  /* ── 다크 팔레트 ──────────────────────────────────── */
+  /* ── 다크 팔레트 ────────────────────────────────── */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg-0:      #0c0e13;
-      --bg-1:      #14171f;
-      --surface:   #171b24;
-      --surface-2: #1e232e;
-
-      --ink-1:  #eef1f6;
-      --ink-2:  #a9b2c1;
-      --ink-3:  #7b8494;
-
-      --line-1: #262c38;
-      --line-2: #1e232e;
-
-      --accent:      #8aa6f8;
-      --accent-soft: #1c2438;
-      --accent-ink:  #a9beff;
-
-      --lift-sm: 0 1px 2px rgba(0,0,0,.5);
-      --lift:    0 2px 4px rgba(0,0,0,.3),
-                 0 12px 32px -8px rgba(0,0,0,.5),
-                 0 32px 64px -24px rgba(0,0,0,.6);
+      --bg-0:#0c0e13; --bg-1:#14171f;
+      --surface:#171b24; --surface-2:#1e232e;
+      --ink-1:#eef1f6; --ink-2:#a9b2c1; --ink-3:#7b8494;
+      --line-1:#262c38; --line-2:#1e232e;
+      --accent:#8aa6f8; --accent-soft:#1c2438; --accent-ink:#a9beff;
+      --ok:#5fd0a0; --ok-soft:#152a22;
+      --lift-sm:0 1px 2px rgba(0,0,0,.5);
+      --lift:0 2px 4px rgba(0,0,0,.3),
+             0 12px 32px -8px rgba(0,0,0,.5),
+             0 32px 64px -24px rgba(0,0,0,.6);
     }
   }
   :root[data-theme="dark"] {
-    --bg-0:      #0c0e13;
-    --bg-1:      #14171f;
-    --surface:   #171b24;
-    --surface-2: #1e232e;
-    --ink-1:  #eef1f6;
-    --ink-2:  #a9b2c1;
-    --ink-3:  #7b8494;
-    --line-1: #262c38;
-    --line-2: #1e232e;
-    --accent:      #8aa6f8;
-    --accent-soft: #1c2438;
-    --accent-ink:  #a9beff;
-    --lift-sm: 0 1px 2px rgba(0,0,0,.5);
-    --lift:    0 2px 4px rgba(0,0,0,.3),
-               0 12px 32px -8px rgba(0,0,0,.5),
-               0 32px 64px -24px rgba(0,0,0,.6);
+    --bg-0:#0c0e13; --bg-1:#14171f;
+    --surface:#171b24; --surface-2:#1e232e;
+    --ink-1:#eef1f6; --ink-2:#a9b2c1; --ink-3:#7b8494;
+    --line-1:#262c38; --line-2:#1e232e;
+    --accent:#8aa6f8; --accent-soft:#1c2438; --accent-ink:#a9beff;
+    --ok:#5fd0a0; --ok-soft:#152a22;
+    --lift-sm:0 1px 2px rgba(0,0,0,.5);
+    --lift:0 2px 4px rgba(0,0,0,.3),
+           0 12px 32px -8px rgba(0,0,0,.5),
+           0 32px 64px -24px rgba(0,0,0,.6);
   }
 
-  * { box-sizing: border-box; }
-
-  html, body { height: 100%; margin: 0; }
+  * { box-sizing:border-box; }
+  html, body { height:100%; margin:0; }
 
   body {
     background:
       radial-gradient(1100px 620px at 12% -12%, var(--bg-1) 0%, transparent 62%),
       radial-gradient(900px 520px at 100% 0%, var(--accent-soft) 0%, transparent 55%),
       var(--bg-0);
-    color: var(--ink-1);
-    font-family: "Pretendard Variable", "Pretendard", "Malgun Gothic",
-                 system-ui, -apple-system, "Segoe UI",
-                 "Apple SD Gothic Neo", sans-serif;
-    font-size: 17px;
-    line-height: 1.62;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    color:var(--ink-1);
+    font-family:"Pretendard Variable","Pretendard","Malgun Gothic",
+                system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo",sans-serif;
+    font-size:17px; line-height:1.62;
+    -webkit-font-smoothing:antialiased;
 
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: var(--pad);
-    padding-bottom: max(var(--pad), env(safe-area-inset-bottom));
+    display:flex; flex-direction:column; gap:14px;
+    padding:var(--pad);
+    padding-bottom:max(var(--pad), env(safe-area-inset-bottom));
   }
 
-  /* ── 헤더 ───────────────────────────────────────── */
-  header {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    padding: 0 2px;
-  }
+  /* ── 헤더 ──────────────────────────────────────── */
+  header { flex:none; display:flex; align-items:center; gap:13px; padding:0 2px; }
 
   .mark {
-    flex: none;
-    width: 44px; height: 44px;
-    display: grid; place-items: center;
-    border-radius: var(--r-md);
-    background: var(--surface);
-    box-shadow: var(--ring), var(--lift-sm);
-    color: var(--accent);
+    flex:none; width:44px; height:44px;
+    display:grid; place-items:center;
+    border-radius:var(--r-md);
+    background:var(--surface);
+    box-shadow:var(--ring), var(--lift-sm);
+    color:var(--accent);
   }
-  .mark svg { width: 23px; height: 23px; display: block; }
+  .mark svg { width:23px; height:23px; display:block; }
 
-  .titles { min-width: 0; }
-
+  .titles { min-width:0; }
   h1 {
-    margin: 0;
-    font-size: 19px;
-    font-weight: 700;
-    letter-spacing: -.017em;
-    line-height: 1.3;
-    color: var(--ink-1);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin:0; font-size:19px; font-weight:700;
+    letter-spacing:-.017em; line-height:1.3; color:var(--ink-1);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-
   .sub {
-    margin: 2px 0 0;
-    font-size: 14px;
-    color: var(--ink-3);
-    letter-spacing: -.005em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin:2px 0 0; font-size:14px; color:var(--ink-3);
+    letter-spacing:-.005em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
 
   .badge {
-    margin-left: auto;
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 13.5px;
-    font-weight: 600;
-    letter-spacing: -.005em;
-    color: var(--accent-ink);
-    background: var(--accent-soft);
-    border: 1px solid transparent;
-    border-radius: 999px;
-    padding: 7px 15px 7px 12px;
-    white-space: nowrap;
+    margin-left:auto; flex:none;
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:13.5px; font-weight:600; letter-spacing:-.005em;
+    color:var(--accent-ink); background:var(--accent-soft);
+    border-radius:999px; padding:7px 15px 7px 12px; white-space:nowrap;
   }
-  .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-    opacity: .85;
+  .dot { width:6px; height:6px; border-radius:50%; background:currentColor; opacity:.85; }
+
+  /* ── 본문 2단 레이아웃 ──────────────────────────── */
+  .layout {
+    flex:1 1 auto; min-height:0;
+    display:grid;
+    grid-template-columns:minmax(300px, 340px) 1fr;
+    gap:14px;
   }
 
-  /* ── 대화창 ─────────────────────────────────────── */
+  /* ── 안내 패널 ─────────────────────────────────── */
+  .guide {
+    background:var(--surface);
+    border-radius:var(--r-lg);
+    box-shadow:var(--ring), var(--lift);
+    padding:20px 20px 22px;
+    overflow-y:auto;
+    scrollbar-width:thin;
+  }
+
+  .guide h2 {
+    margin:0 0 4px; font-size:15.5px; font-weight:700;
+    letter-spacing:-.012em; color:var(--ink-1);
+  }
+  .guide .lead {
+    margin:0 0 18px; font-size:13.5px; color:var(--ink-3); line-height:1.55;
+  }
+
+  .flow { list-style:none; margin:0; padding:0; position:relative; }
+
+  .flow li {
+    position:relative;
+    padding:0 0 18px 38px;
+  }
+  .flow li:last-child { padding-bottom:4px; }
+
+  /* 연결선 */
+  .flow li::before {
+    content:"";
+    position:absolute; left:13px; top:26px; bottom:0;
+    width:2px; background:var(--line-1);
+  }
+  .flow li:last-child::before { display:none; }
+
+  .num {
+    position:absolute; left:0; top:1px;
+    width:28px; height:28px;
+    display:grid; place-items:center;
+    border-radius:50%;
+    background:var(--accent-soft); color:var(--accent-ink);
+    font-size:12.5px; font-weight:700; letter-spacing:-.02em;
+    z-index:1;
+  }
+  .flow li.final .num { background:var(--ok-soft); color:var(--ok); }
+
+  .flow h3 {
+    margin:2px 0 3px; font-size:14.5px; font-weight:650;
+    letter-spacing:-.01em; color:var(--ink-1);
+  }
+  .flow p {
+    margin:0; font-size:13.5px; line-height:1.55; color:var(--ink-3);
+  }
+  .flow .who {
+    display:inline-block; margin-top:5px;
+    font-size:11.5px; font-weight:600; letter-spacing:-.005em;
+    color:var(--ink-2); background:var(--surface-2);
+    box-shadow:var(--ring);
+    border-radius:999px; padding:3px 9px;
+  }
+
+  .goal {
+    margin-top:18px; padding:14px 16px;
+    background:var(--ok-soft);
+    border-radius:var(--r-md);
+    font-size:13.5px; line-height:1.6; color:var(--ink-2);
+  }
+  .goal b { color:var(--ink-1); font-weight:700; }
+  .goal .cap {
+    display:block; margin-bottom:4px;
+    font-size:11.5px; font-weight:700; letter-spacing:.02em;
+    color:var(--ok); text-transform:uppercase;
+  }
+
+  .tip {
+    margin-top:12px; font-size:12.5px; line-height:1.6; color:var(--ink-3);
+    padding-top:12px; border-top:1px solid var(--line-1);
+  }
+  .tip b { color:var(--ink-2); font-weight:600; }
+
+  /* ── 대화창 ────────────────────────────────────── */
   .stage {
-    flex: 1 1 auto;
-    min-height: 0;
-    position: relative;
-    background: var(--surface);
-    border-radius: var(--r-lg);
-    box-shadow: var(--ring), var(--lift);
-    overflow: hidden;
-    isolation: isolate;
+    position:relative; min-height:0;
+    background:var(--surface);
+    border-radius:var(--r-lg);
+    box-shadow:var(--ring), var(--lift);
+    overflow:hidden; isolation:isolate;
   }
-
-  /* 상단 가느다란 강조선 */
   .stage::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 2px;
-    background: linear-gradient(90deg,
-      transparent 0%, var(--accent) 22%, var(--accent) 78%, transparent 100%);
-    opacity: .5;
-    z-index: 2;
-    pointer-events: none;
+    content:""; position:absolute; inset:0 0 auto 0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--accent) 22%,
+                                        var(--accent) 78%, transparent);
+    opacity:.5; z-index:2; pointer-events:none;
   }
+  iframe { width:100%; height:100%; border:0; display:block; }
 
-  iframe {
-    width: 100%; height: 100%;
-    border: 0; display: block;
-  }
-
-  /* ── 로딩 ───────────────────────────────────────── */
   .loading {
-    position: absolute; inset: 0;
-    display: grid; place-items: center; align-content: center;
-    gap: 14px;
-    background: var(--surface);
-    z-index: 3;
-    transition: opacity .45s ease;
-    pointer-events: none;
+    position:absolute; inset:0; z-index:3;
+    display:grid; place-items:center; align-content:center; gap:14px;
+    background:var(--surface);
+    transition:opacity .45s ease; pointer-events:none;
   }
-  .loading.hide { opacity: 0; }
-
+  .loading.hide { opacity:0; }
   .spin {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    border: 2px solid var(--line-1);
-    border-top-color: var(--accent);
-    animation: spin .75s linear infinite;
+    width:26px; height:26px; border-radius:50%;
+    border:2px solid var(--line-1); border-top-color:var(--accent);
+    animation:spin .75s linear infinite;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .loading p {
-    margin: 0;
-    font-size: 14.5px;
-    color: var(--ink-3);
-    letter-spacing: -.005em;
-  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading p { margin:0; font-size:14.5px; color:var(--ink-3); }
   @media (prefers-reduced-motion: reduce) {
-    .spin { animation: none; }
-    .loading { transition: none; }
+    .spin { animation:none; } .loading { transition:none; }
   }
 
-  /* ── 푸터 ───────────────────────────────────────── */
+  /* ── 푸터 ──────────────────────────────────────── */
   footer {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 10px 18px;
-    flex-wrap: wrap;
-    padding: 0 4px;
-    font-size: 14px;
-    color: var(--ink-3);
-    letter-spacing: -.005em;
+    flex:none; padding:0 4px;
+    font-size:13.5px; color:var(--ink-3); letter-spacing:-.005em;
+  }
+  footer b { color:var(--ink-2); font-weight:600; }
+
+  /* ── 반응형 ────────────────────────────────────── */
+  @media (max-width: 1040px) {
+    .layout { grid-template-columns:minmax(270px, 300px) 1fr; }
+    .badge { display:none; }
   }
 
-  .steps {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .step {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 13px;
-    border-radius: 999px;
-    background: var(--surface-2);
-    box-shadow: var(--ring);
-    color: var(--ink-2);
-    font-size: 13.5px;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .step i {
-    font-style: normal;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--accent);
-    opacity: .9;
-  }
-
-  .note {
-    margin-left: auto;
-    text-align: right;
-    line-height: 1.5;
-  }
-  .note b { color: var(--ink-2); font-weight: 600; }
-
-  /* ── 반응형 ─────────────────────────────────────── */
-  /* 태블릿 */
-  @media (max-width: 900px) {
-    .badge { display: none; }
-    .note  { margin-left: 0; text-align: left; flex-basis: 100%; }
-  }
-
-  /* 모바일 */
-  @media (max-width: 620px) {
-    :root { --pad: 12px; --r-lg: 16px; }
-
-    body { gap: 11px; font-size: 16px; }
-
-    header { gap: 11px; }
-    .mark  { width: 40px; height: 40px; border-radius: 11px; }
-    .mark svg { width: 21px; height: 21px; }
-
-    h1    { font-size: 17.5px; }
-    .sub  { font-size: 13px; white-space: normal; line-height: 1.45; }
-
-    /* 단계 칩: 숨기지 않고 가로 스크롤로 전부 노출 */
-    .steps {
-      flex-basis: 100%;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      padding-bottom: 2px;
-      margin: 0 -12px;
-      padding-inline: 12px;
+  /* 태블릿·모바일: 세로 적층, 안내는 접기 */
+  @media (max-width: 860px) {
+    .layout {
+      grid-template-columns:1fr;
+      grid-template-rows:auto minmax(420px, 1fr);
+      overflow-y:auto;
     }
-    .steps::-webkit-scrollbar { display: none; }
-    .step { font-size: 13px; padding: 6px 12px; }
+    .guide { padding:0; overflow:visible; }
 
-    footer { gap: 9px; font-size: 13px; }
-    .note  { order: -1; }
+    .guide summary {
+      list-style:none; cursor:pointer;
+      display:flex; align-items:center; gap:10px;
+      padding:15px 18px;
+      font-size:15px; font-weight:650; letter-spacing:-.01em;
+      color:var(--ink-1);
+    }
+    .guide summary::-webkit-details-marker { display:none; }
+    .guide summary::after {
+      content:""; margin-left:auto;
+      width:9px; height:9px;
+      border-right:2px solid var(--ink-3);
+      border-bottom:2px solid var(--ink-3);
+      transform:rotate(45deg) translateY(-2px);
+      transition:transform .2s ease;
+    }
+    .guide[open] summary::after { transform:rotate(-135deg) translateY(-2px); }
+    .guide .inner { padding:0 18px 20px; }
+    .stage { min-height:420px; }
   }
 
-  /* 초소형 */
+  @media (min-width: 861px) {
+    .guide summary { display:none; }
+  }
+
+  @media (max-width: 620px) {
+    :root { --pad:12px; --r-lg:16px; }
+    body { gap:11px; font-size:16px; }
+    header { gap:11px; }
+    .mark { width:40px; height:40px; border-radius:11px; }
+    .mark svg { width:21px; height:21px; }
+    h1 { font-size:17.5px; }
+    .sub { font-size:13px; white-space:normal; line-height:1.45; }
+    footer { font-size:12.5px; }
+    .flow li { padding-left:36px; }
+  }
+
   @media (max-width: 380px) {
-    h1   { font-size: 16.5px; }
-    .sub { display: none; }
+    h1 { font-size:16.5px; }
+    .sub { display:none; }
   }
 
-  /* 가로 눕힌 화면 — 대화 영역 확보 */
   @media (max-height: 560px) and (orientation: landscape) {
-    footer, .sub { display: none; }
-    body { gap: 9px; --pad: 10px; }
-    .mark { width: 34px; height: 34px; }
-    h1 { font-size: 16px; }
+    footer, .sub { display:none; }
+    body { gap:9px; --pad:10px; }
   }
 </style>
 
 <header>
   <span class="mark" aria-hidden="true">
-    <!-- 나침반: 방향을 잡아 준다는 의미 -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
          stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="9.2"/>
       <path d="M15.4 8.6l-1.9 5-5 1.9 1.9-5z"/>
     </svg>
   </span>
-
   <div class="titles">
     <h1>교육활동 AI Agent Builder</h1>
-    <p class="sub">수업 아이디어를 성취기준 · 활동 · 평가 · 학생용 에이전트로</p>
+    <p class="sub">수업에서 바로 쓰는 학생용 AI 에이전트를 함께 만듭니다</p>
   </div>
-
   <span class="badge"><span class="dot"></span>2022 개정 교육과정</span>
 </header>
 
-<main class="stage">
-  <iframe
-    id="agent"
-    title="교육활동 AI Agent Builder 대화창"
-    src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_eduagentbuilder_Cp9LGm/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
-    allow="microphone; clipboard-write"></iframe>
+<div class="layout">
 
-  <div class="loading" id="loading">
-    <div class="spin"></div>
-    <p>에이전트를 불러오는 중입니다</p>
-  </div>
-</main>
+  <details class="guide" open>
+    <summary>진행 단계 보기</summary>
+    <div class="inner">
+      <h2>이렇게 진행됩니다</h2>
+      <p class="lead">학년 · 교과 · 주제만 알려 주시면 아래 순서로 진행됩니다.</p>
+
+      <ol class="flow">
+        <li>
+          <span class="num">1</span>
+          <h3>수업 알려주기</h3>
+          <p>학년, 교과, 주제, 차시 수를 입력합니다. 부족한 정보는 되물어 봅니다.</p>
+          <span class="who">선생님</span>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <h3>성취기준 확인</h3>
+          <p>2022 개정 교육과정 원문에서 근거 성취기준을 찾아 대조합니다. 학년군이 맞는지도 검증합니다.</p>
+          <span class="who">EA1 성취기준</span>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <h3>교육활동 설계</h3>
+          <p>차시별 도입 · 전개 · 정리를 구성하고, AI가 실제로 도움이 되는 지점만 배치합니다.</p>
+          <span class="who">EA2 활동</span>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <h3>평가 계획</h3>
+          <p>성취기준에 근거한 평가 요소와 3단계 루브릭, 자기평가 문항을 만듭니다.</p>
+          <span class="who">EA4 평가</span>
+        </li>
+        <li>
+          <span class="num">5</span>
+          <h3>학생용 에이전트 명세</h3>
+          <p>이름 · 모델 · 지침 · 시작 인사말 · 추천 프롬프트를 복사해 쓸 수 있는 형태로 작성합니다.</p>
+          <span class="who">EA3 명세</span>
+        </li>
+        <li>
+          <span class="num">6</span>
+          <h3>안전 검토</h3>
+          <p>개인정보, 학년 적합성, 교육적 타당성을 점검하고 고칠 부분을 알려 줍니다.</p>
+          <span class="who">EA5 검토</span>
+        </li>
+        <li class="final">
+          <span class="num">✓</span>
+          <h3>수업에 투입</h3>
+          <p>받은 명세를 Copilot Studio에 붙여넣고 게시하면, 학생과 대화하는 교육활동 에이전트가 완성됩니다.</p>
+          <span class="who">선생님</span>
+        </li>
+      </ol>
+
+      <div class="goal">
+        <span class="cap">최종 결과물</span>
+        성취기준에 맞춰 설계되고 안전 검토를 마친 <b>수업용 학생 AI 에이전트</b>
+        — 지도안과 평가 루브릭이 함께 나옵니다.
+      </div>
+
+      <p class="tip">
+        <b>이렇게 물어보세요</b><br>
+        “4학년 사회 우리 고장 수업, 2차시로 만들어 줘”<br>
+        “5학년 과학 실험 결과를 정리하는 도우미가 필요해”
+      </p>
+    </div>
+  </details>
+
+  <main class="stage">
+    <iframe
+      id="agent"
+      title="교육활동 AI Agent Builder 대화창"
+      src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_eduagentbuilder_Cp9LGm/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
+      allow="microphone; clipboard-write"></iframe>
+    <div class="loading" id="loading">
+      <div class="spin"></div>
+      <p>에이전트를 불러오는 중입니다</p>
+    </div>
+  </main>
+
+</div>
 
 <footer>
-  <div class="steps">
-    <span class="step"><i>01</i>성취기준 매핑</span>
-    <span class="step"><i>02</i>교육활동 설계</span>
-    <span class="step"><i>03</i>평가 루브릭</span>
-    <span class="step"><i>04</i>에이전트 명세</span>
-  </div>
-  <div class="note">
-    학년 · 교과 · 주제를 알려 주세요 &nbsp;·&nbsp;
-    학생 이름 등 <b>개인정보는 입력하지 마세요</b>
-  </div>
+  생성된 성취기준과 활동은 <b>수업 전 반드시 확인</b>해 주세요 &nbsp;·&nbsp;
+  학생 이름 등 <b>개인정보는 입력하지 마세요</b>
 </footer>
 
 <script>
@@ -391,5 +410,18 @@
     }
     f.addEventListener('load', hide);
     setTimeout(hide, 9000);
+
+    /* 모바일에서는 안내를 접은 상태로 시작해 대화창을 먼저 보이게 한다 */
+    var g = document.querySelector('.guide');
+    function sync() {
+      if (window.matchMedia('(max-width: 860px)').matches) {
+        if (!g.dataset.touched) g.open = false;
+      } else {
+        g.open = true;
+      }
+    }
+    g.addEventListener('toggle', function () { g.dataset.touched = '1'; });
+    window.addEventListener('resize', sync);
+    sync();
   })();
 </script>
