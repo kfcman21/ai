@@ -1,0 +1,4 @@
+setup-github.ps1
+*.pem
+.env
+
