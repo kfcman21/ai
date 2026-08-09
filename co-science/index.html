@@ -1,0 +1,430 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>지능형 과학교실 실험 AI Agent</title>
+<meta name="description" content="마이크로비트와 연계해 초등 과학 실험을 설계하고, 코드·데이터·탐구 보고서까지 지원합니다.">
+<meta name="color-scheme" content="light dark">
+
+<style>
+  /* ── 라이트 팔레트 (기본) ────────────────────────── */
+  :root {
+    --bg-0:#eaf2ef; --bg-1:#f5faf8;
+    --surface:#ffffff; --surface-2:#f1f6f4;
+    --ink-1:#111a17; --ink-2:#414e4a; --ink-3:#73827d;
+    --line-1:#dde8e4; --line-2:#eaf2ef;
+    --accent:#0f7a5f; --accent-soft:#e2f2ec; --accent-ink:#0b6249;
+    --warn:#a8570d; --warn-soft:#fdf0e0;
+    --ok:#0f7a5f; --ok-soft:#e2f2ec;
+
+    --ring:0 0 0 1px var(--line-1);
+    --lift-sm:0 1px 2px rgba(12,30,25,.05);
+    --lift:0 2px 4px rgba(12,30,25,.04),
+           0 12px 32px -8px rgba(12,30,25,.10),
+           0 32px 64px -24px rgba(12,30,25,.10);
+
+    --r-lg:18px; --r-md:12px; --r-sm:9px;
+    --pad:22px;
+  }
+
+  /* ── 다크 팔레트 ────────────────────────────────── */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg-0:#0a0f0d; --bg-1:#121a17;
+      --surface:#151d1a; --surface-2:#1c2622;
+      --ink-1:#eaf2ef; --ink-2:#a5b5b0; --ink-3:#788782;
+      --line-1:#233029; --line-2:#1c2622;
+      --accent:#5fd3a8; --accent-soft:#13291f; --accent-ink:#7fe0bb;
+      --warn:#e8a75c; --warn-soft:#2a2013;
+      --ok:#5fd3a8; --ok-soft:#13291f;
+      --lift-sm:0 1px 2px rgba(0,0,0,.5);
+      --lift:0 2px 4px rgba(0,0,0,.3),
+             0 12px 32px -8px rgba(0,0,0,.5),
+             0 32px 64px -24px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg-0:#0a0f0d; --bg-1:#121a17;
+    --surface:#151d1a; --surface-2:#1c2622;
+    --ink-1:#eaf2ef; --ink-2:#a5b5b0; --ink-3:#788782;
+    --line-1:#233029; --line-2:#1c2622;
+    --accent:#5fd3a8; --accent-soft:#13291f; --accent-ink:#7fe0bb;
+    --warn:#e8a75c; --warn-soft:#2a2013;
+    --ok:#5fd3a8; --ok-soft:#13291f;
+    --lift-sm:0 1px 2px rgba(0,0,0,.5);
+    --lift:0 2px 4px rgba(0,0,0,.3),
+           0 12px 32px -8px rgba(0,0,0,.5),
+           0 32px 64px -24px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing:border-box; }
+  html, body { height:100%; margin:0; }
+
+  body {
+    background:
+      radial-gradient(1100px 620px at 12% -12%, var(--bg-1) 0%, transparent 62%),
+      radial-gradient(900px 520px at 100% 0%, var(--accent-soft) 0%, transparent 55%),
+      var(--bg-0);
+    color:var(--ink-1);
+    font-family:"Pretendard Variable","Pretendard","Malgun Gothic",
+                system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo",sans-serif;
+    font-size:17px; line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+
+    display:flex; flex-direction:column; gap:14px;
+    padding:var(--pad);
+    padding-bottom:max(var(--pad), env(safe-area-inset-bottom));
+  }
+
+  /* ── 헤더 ──────────────────────────────────────── */
+  header { flex:none; display:flex; align-items:center; gap:13px; padding:0 2px; }
+
+  .mark {
+    flex:none; width:44px; height:44px;
+    display:grid; place-items:center;
+    border-radius:var(--r-md);
+    background:var(--surface);
+    box-shadow:var(--ring), var(--lift-sm);
+    color:var(--accent);
+  }
+  .mark svg { width:23px; height:23px; display:block; }
+
+  .titles { min-width:0; }
+  h1 {
+    margin:0; font-size:19px; font-weight:700;
+    letter-spacing:-.017em; line-height:1.3; color:var(--ink-1);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .sub {
+    margin:2px 0 0; font-size:14px; color:var(--ink-3);
+    letter-spacing:-.005em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  .badge {
+    margin-left:auto; flex:none;
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:13.5px; font-weight:600; letter-spacing:-.005em;
+    color:var(--accent-ink); background:var(--accent-soft);
+    border-radius:999px; padding:7px 15px 7px 12px; white-space:nowrap;
+  }
+  .dot { width:6px; height:6px; border-radius:50%; background:currentColor; opacity:.85; }
+
+  /* ── 본문 2단 ──────────────────────────────────── */
+  .layout {
+    flex:1 1 auto; min-height:0;
+    display:grid;
+    grid-template-columns:minmax(300px, 348px) 1fr;
+    gap:14px;
+  }
+
+  /* ── 안내 패널 ─────────────────────────────────── */
+  .guide {
+    background:var(--surface);
+    border-radius:var(--r-lg);
+    box-shadow:var(--ring), var(--lift);
+    padding:20px 20px 22px;
+    overflow-y:auto; scrollbar-width:thin;
+  }
+  .guide h2 {
+    margin:0 0 4px; font-size:15.5px; font-weight:700;
+    letter-spacing:-.012em; color:var(--ink-1);
+  }
+  .guide .lead {
+    margin:0 0 18px; font-size:13.5px; color:var(--ink-3); line-height:1.55;
+  }
+
+  .flow { list-style:none; margin:0; padding:0; }
+  .flow li { position:relative; padding:0 0 18px 38px; }
+  .flow li:last-child { padding-bottom:4px; }
+  .flow li::before {
+    content:""; position:absolute; left:13px; top:26px; bottom:0;
+    width:2px; background:var(--line-1);
+  }
+  .flow li:last-child::before { display:none; }
+
+  .num {
+    position:absolute; left:0; top:1px;
+    width:28px; height:28px;
+    display:grid; place-items:center; border-radius:50%;
+    background:var(--accent-soft); color:var(--accent-ink);
+    font-size:12.5px; font-weight:700; letter-spacing:-.02em; z-index:1;
+  }
+  .flow li.act .num { background:var(--warn-soft); color:var(--warn); }
+  .flow li.final .num { background:var(--ok-soft); color:var(--ok); }
+
+  .flow h3 {
+    margin:2px 0 3px; font-size:14.5px; font-weight:650;
+    letter-spacing:-.01em; color:var(--ink-1);
+  }
+  .flow p { margin:0; font-size:13.5px; line-height:1.55; color:var(--ink-3); }
+  .flow .who {
+    display:inline-block; margin-top:5px;
+    font-size:11.5px; font-weight:600; letter-spacing:-.005em;
+    color:var(--ink-2); background:var(--surface-2);
+    box-shadow:var(--ring); border-radius:999px; padding:3px 9px;
+  }
+
+  .goal {
+    margin-top:18px; padding:14px 16px;
+    background:var(--ok-soft); border-radius:var(--r-md);
+    font-size:13.5px; line-height:1.6; color:var(--ink-2);
+  }
+  .goal b { color:var(--ink-1); font-weight:700; }
+  .goal .cap {
+    display:block; margin-bottom:4px;
+    font-size:11.5px; font-weight:700; letter-spacing:.02em;
+    color:var(--ok); text-transform:uppercase;
+  }
+
+  .safety {
+    margin-top:10px; padding:12px 14px;
+    background:var(--warn-soft); border-radius:var(--r-md);
+    font-size:13px; line-height:1.6; color:var(--ink-2);
+  }
+  .safety b { color:var(--ink-1); font-weight:700; }
+
+  .tip {
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--line-1);
+    font-size:12.5px; line-height:1.6; color:var(--ink-3);
+  }
+  .tip b { color:var(--ink-2); font-weight:600; }
+
+  /* ── 대화창 ────────────────────────────────────── */
+  .stage {
+    position:relative; min-height:0;
+    background:var(--surface); border-radius:var(--r-lg);
+    box-shadow:var(--ring), var(--lift);
+    overflow:hidden; isolation:isolate;
+  }
+  .stage::before {
+    content:""; position:absolute; inset:0 0 auto 0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--accent) 22%,
+                                        var(--accent) 78%, transparent);
+    opacity:.5; z-index:2; pointer-events:none;
+  }
+  iframe { width:100%; height:100%; border:0; display:block; }
+
+  .loading {
+    position:absolute; inset:0; z-index:3;
+    display:grid; place-items:center; align-content:center; gap:14px;
+    background:var(--surface);
+    transition:opacity .45s ease; pointer-events:none;
+  }
+  .loading.hide { opacity:0; }
+  .spin {
+    width:26px; height:26px; border-radius:50%;
+    border:2px solid var(--line-1); border-top-color:var(--accent);
+    animation:spin .75s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading p { margin:0; font-size:14.5px; color:var(--ink-3); }
+  @media (prefers-reduced-motion: reduce) {
+    .spin { animation:none; } .loading { transition:none; }
+  }
+
+  /* ── 푸터 ──────────────────────────────────────── */
+  footer {
+    flex:none; padding:0 4px;
+    font-size:13.5px; color:var(--ink-3); letter-spacing:-.005em;
+  }
+  footer b { color:var(--ink-2); font-weight:600; }
+
+  /* ── 반응형 ────────────────────────────────────── */
+  @media (max-width: 1060px) {
+    .layout { grid-template-columns:minmax(272px, 306px) 1fr; }
+    .badge { display:none; }
+  }
+
+  @media (max-width: 880px) {
+    .layout {
+      grid-template-columns:1fr;
+      grid-template-rows:auto minmax(420px, 1fr);
+      overflow-y:auto;
+    }
+    .guide { padding:0; overflow:visible; }
+    .guide summary {
+      list-style:none; cursor:pointer;
+      display:flex; align-items:center; gap:10px;
+      padding:15px 18px;
+      font-size:15px; font-weight:650; letter-spacing:-.01em; color:var(--ink-1);
+    }
+    .guide summary::-webkit-details-marker { display:none; }
+    .guide summary::after {
+      content:""; margin-left:auto;
+      width:9px; height:9px;
+      border-right:2px solid var(--ink-3); border-bottom:2px solid var(--ink-3);
+      transform:rotate(45deg) translateY(-2px);
+      transition:transform .2s ease;
+    }
+    .guide[open] summary::after { transform:rotate(-135deg) translateY(-2px); }
+    .guide .inner { padding:0 18px 20px; }
+    .stage { min-height:420px; }
+  }
+  @media (min-width: 881px) { .guide summary { display:none; } }
+
+  @media (max-width: 620px) {
+    :root { --pad:12px; --r-lg:16px; }
+    body { gap:11px; font-size:16px; }
+    header { gap:11px; }
+    .mark { width:40px; height:40px; border-radius:11px; }
+    .mark svg { width:21px; height:21px; }
+    h1 { font-size:17.5px; }
+    .sub { font-size:13px; white-space:normal; line-height:1.45; }
+    footer { font-size:12.5px; }
+    .flow li { padding-left:36px; }
+  }
+
+  @media (max-width: 380px) {
+    h1 { font-size:16.5px; }
+    .sub { display:none; }
+  }
+
+  @media (max-height: 560px) and (orientation: landscape) {
+    footer, .sub { display:none; }
+    body { gap:9px; --pad:10px; }
+  }
+</style>
+
+<header>
+  <span class="mark" aria-hidden="true">
+    <!-- 플라스크: 실험 -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9.5 3v6.2L4.6 17.4A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.7-3.1L14.5 9.2V3"/>
+      <path d="M8.4 3h7.2"/>
+      <path d="M7.2 14.4h9.6"/>
+    </svg>
+  </span>
+  <div class="titles">
+    <h1>지능형 과학교실 실험 AI Agent</h1>
+    <p class="sub">마이크로비트로 측정하고 데이터·보고서까지 한 번에</p>
+  </div>
+  <span class="badge"><span class="dot"></span>초등 3~6학년 과학</span>
+</header>
+
+<div class="layout">
+
+  <details class="guide" open>
+    <summary>진행 단계 보기</summary>
+    <div class="inner">
+      <h2>이렇게 진행됩니다</h2>
+      <p class="lead">학년과 단원, 가지고 있는 micro:bit 버전을 알려 주세요.</p>
+
+      <ol class="flow">
+        <li>
+          <span class="num">1</span>
+          <h3>실험 알려주기</h3>
+          <p>학년, 단원 또는 측정하려는 것, 차시 수, micro:bit 버전(V1/V2)을 말씀해 주세요.</p>
+          <span class="who">선생님</span>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <h3>성취기준 · 변인 설계</h3>
+          <p>2022 개정 과학과 성취기준을 확인하고, 무엇을 재고 무엇을 바꿀지 정리합니다.</p>
+          <span class="who">SA1 성취기준</span>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <h3>안전 검토</h3>
+          <p>전기 · 열 · 물 · 낙하 위험과 학년별 조작 난이도를 코드 만들기 전에 점검합니다.</p>
+          <span class="who">SA5 안전</span>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <h3>마이크로비트 코드</h3>
+          <p>MakeCode JavaScript를 만들어 드립니다. 준비물, 업로드 방법, 성공 확인법까지 함께요.</p>
+          <span class="who">SA2 코드</span>
+        </li>
+        <li class="act">
+          <span class="num">5</span>
+          <h3>실험 수행</h3>
+          <p>코드를 올리고 학생들이 직접 측정합니다. 데이터는 기기에 저장되거나 화면에 표시됩니다.</p>
+          <span class="who">학생 · 선생님</span>
+        </li>
+        <li>
+          <span class="num">6</span>
+          <h3>데이터 정리</h3>
+          <p>측정값을 붙여 넣으면 표와 엑셀용 CSV로 정리하고, 평균과 변화 경향을 계산합니다.</p>
+          <span class="who">SA3 데이터</span>
+        </li>
+        <li>
+          <span class="num">7</span>
+          <h3>보고서 · 평가</h3>
+          <p>학생용 탐구 보고서 양식과 3단계 평가 루브릭을 만듭니다.</p>
+          <span class="who">SA4 보고서</span>
+        </li>
+        <li class="final">
+          <span class="num">✓</span>
+          <h3>수업 완성</h3>
+          <p>탐구 설계 · 실험 코드 · 측정 데이터 · 보고서 · 루브릭이 한 세트로 갖춰집니다.</p>
+          <span class="who">선생님</span>
+        </li>
+      </ol>
+
+      <div class="goal">
+        <span class="cap">최종 결과물</span>
+        성취기준에 맞춘 <b>탐구 활동 한 세트</b>
+        — 마이크로비트 코드, 엑셀 데이터, 탐구 보고서, 평가 루브릭이 함께 나옵니다.
+      </div>
+
+      <div class="safety">
+        <b>안전 먼저</b><br>
+        마이크로비트는 3V 전원만 사용하고, 핀에 전원을 직접 연결하지 않습니다.
+        물이 닿지 않게 하고, 기기가 뜨거워지면 바로 전원을 분리하세요.
+      </div>
+
+      <p class="tip">
+        <b>이렇게 물어보세요</b><br>
+        “4학년 그림자 실험을 마이크로비트로 해보고 싶어”<br>
+        “5학년 온도 변화 측정 코드 만들어 줘”<br>
+        “측정값 정리해서 엑셀로 만들어 줘”
+      </p>
+    </div>
+  </details>
+
+  <main class="stage">
+    <iframe
+      id="agent"
+      title="지능형 과학교실 실험 AI Agent 대화창"
+      src="https://copilotstudio.preview.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/cr470_sciencelabagent_vg4c5B/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
+      allow="microphone; clipboard-write"></iframe>
+    <div class="loading" id="loading">
+      <div class="spin"></div>
+      <p>에이전트를 불러오는 중입니다</p>
+    </div>
+  </main>
+
+</div>
+
+<footer>
+  성취기준과 코드는 <b>수업 전 반드시 확인</b>해 주세요 &nbsp;·&nbsp;
+  측정하지 않은 값은 만들어 내지 않습니다 &nbsp;·&nbsp;
+  학생 이름 등 <b>개인정보는 입력하지 마세요</b>
+</footer>
+
+<script>
+  (function () {
+    var f = document.getElementById('agent');
+    var l = document.getElementById('loading');
+    var done = false;
+    function hide() {
+      if (done) return;
+      done = true;
+      l.classList.add('hide');
+      setTimeout(function () { l.remove(); }, 550);
+    }
+    f.addEventListener('load', hide);
+    setTimeout(hide, 9000);
+
+    var g = document.querySelector('.guide');
+    function sync() {
+      if (window.matchMedia('(max-width: 880px)').matches) {
+        if (!g.dataset.touched) g.open = false;
+      } else {
+        g.open = true;
+      }
+    }
+    g.addEventListener('toggle', function () { g.dataset.touched = '1'; });
+    window.addEventListener('resize', sync);
+    sync();
+  })();
+</script>
