@@ -1,35 +1,179 @@
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Coding Multi Model Agent</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>교육활동 AI Agent Builder</title>
+<meta name="description" content="2022 개정 교육과정 성취기준에 맞춘 교육활동과 AI 에이전트를 함께 설계해 주는 도우미입니다.">
+
 <style>
-  :root { color-scheme: light dark; }
+  :root {
+    --bg:      #f4f6fa;
+    --panel:   #ffffff;
+    --ink:     #1b1f27;
+    --muted:   #5b6472;
+    --line:    #dfe4ec;
+    --accent:  #2f5fd0;
+    --shadow:  0 1px 3px rgba(20,30,50,.06), 0 8px 28px rgba(20,30,50,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:     #12151b;
+      --panel:  #1a1e26;
+      --ink:    #e8ecf3;
+      --muted:  #9aa4b4;
+      --line:   #2b313c;
+      --accent: #7ea4f5;
+      --shadow: 0 1px 3px rgba(0,0,0,.4), 0 8px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:     #12151b;
+    --panel:  #1a1e26;
+    --ink:    #e8ecf3;
+    --muted:  #9aa4b4;
+    --line:   #2b313c;
+    --accent: #7ea4f5;
+    --shadow: 0 1px 3px rgba(0,0,0,.4), 0 8px 28px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
   body {
-    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    display: flex; flex-direction: column; height: 100vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Pretendard", "Malgun Gothic", system-ui, -apple-system,
+                 "Segoe UI", "Apple SD Gothic Neo", sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
+
   header {
-    padding: 12px 20px; border-bottom: 1px solid #8883;
-    font-weight: 600; font-size: 15px;
+    flex: none;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 0 4px;
   }
-  #agent { flex: 1; border: 0; width: 100%; }
-  .placeholder {
-    flex: 1; display: grid; place-items: center; padding: 24px;
-    text-align: center; line-height: 1.7; opacity: .75; font-size: 14px;
+
+  h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -.01em;
   }
-  code { background: #8882; padding: 2px 6px; border-radius: 4px; }
+
+  .tag {
+    font-size: 12px;
+    color: var(--accent);
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-weight: 600;
+  }
+
+  .sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .frame {
+    flex: 1 1 auto;
+    min-height: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    background: var(--panel);
+    transition: opacity .4s ease;
+    pointer-events: none;
+  }
+  .loading.hide { opacity: 0; }
+
+  .spin {
+    width: 22px; height: 22px;
+    border: 2px solid var(--line);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: r .8s linear infinite;
+  }
+  @keyframes r { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+  footer {
+    flex: none;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    padding: 0 4px;
+  }
+  footer b { color: var(--ink); font-weight: 600; }
+
+  @media (max-width: 600px) {
+    body { padding: 10px; gap: 8px; }
+    h1 { font-size: 15px; }
+    .sub { flex-basis: 100%; margin-left: 0; }
+    .frame { border-radius: 10px; }
+  }
 </style>
 
-<header>Coding Multi Model Agent</header>
+<header>
+  <h1>교육활동 AI Agent Builder</h1>
+  <span class="tag">2022 개정 교육과정</span>
+  <span class="sub">성취기준 매핑 · 활동 설계 · 에이전트 명세 · 평가 루브릭</span>
+</header>
 
-<!--
-  Copilot Studio에서 Publish 옆 펼침 버튼 → Web app → Embed code를 복사해
-  아래 placeholder 블록 전체를 지우고 그 자리에 붙여 넣으세요.
-  iframe 형태이므로 id="agent"를 주면 위 CSS가 그대로 적용됩니다.
--->
-<div class="placeholder">
-  <div>
-    아직 에이전트가 연결되지 않았습니다.<br>
-    Copilot Studio의 <code>Web app</code> Embed code를
-    <code>index.html</code>에 붙여 넣어 주세요.
+<main class="frame">
+  <iframe
+    id="agent"
+    title="교육활동 AI Agent Builder 대화창"
+    src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_eduagentbuilder_Cp9LGm/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
+    allow="microphone; clipboard-write"></iframe>
+
+  <div class="loading" id="loading">
+    <div class="spin"></div>
+    <div>에이전트를 불러오는 중입니다…</div>
   </div>
-</div>
+</main>
+
+<footer>
+  학년 · 교과 · 주제를 알려 주시면 <b>성취기준</b>부터 <b>학생용 에이전트 지침</b>까지 만들어 드립니다.<br>
+  학생 이름, 학교명 등 <b>개인정보는 입력하지 마세요.</b> 생성된 결과는 수업 전 반드시 확인이 필요합니다.
+</footer>
+
+<script>
+  const f = document.getElementById('agent');
+  const l = document.getElementById('loading');
+  const hide = () => {
+    l.classList.add('hide');
+    setTimeout(() => l.remove(), 500);
+  };
+  f.addEventListener('load', hide);
+  setTimeout(hide, 8000);
+</script>
